@@ -6,6 +6,7 @@ import Backdrop from '../Backdrop/Backdrop'
 interface IProps {
   show: boolean,
   modalClosed: () => void
+  children?: React.ReactNode
 }
 
 interface IState {
@@ -15,7 +16,7 @@ interface IState {
 class Modal extends Component<IProps, IState> {
   
   shouldComponentUpdate(nextProps : IProps, _nextState: IState) {
-    return nextProps.show !== this.props.show
+    return nextProps.show !== this.props.show || nextProps.children !== this.props.children
   }
 
   componentWillUpdate() {
