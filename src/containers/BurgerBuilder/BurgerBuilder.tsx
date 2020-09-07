@@ -7,15 +7,21 @@ import Modal from '../../components/UI/Modal/Modal'
 import OrderSummary from 'components/Burger/OrderSummary/OrderSummary'
 import Spinner from '../../components/UI/Spinner/Spinner'
 import axios from '../../axios-orders'
+import WithErrorHandler from '../../hoc/WithErrorHandler/WithErrorHandler'
+
+type Ingredient = {
+  salad: number,
+  cheese: number,
+  meat: number,
+  bacon: number
+}
 
 interface IProps {
 
 }
 
 interface IState {
-  ingredients:  {
-    [ingredient: string]: number
-  },
+  ingredients: Ingredient | undefined,
   totalPrice: number,
   purcharseable: boolean
   purchasing: boolean
@@ -30,19 +36,15 @@ const INGREDIENT_PRICES = {
 }
 
 type KeyIngredientPrice = keyof typeof INGREDIENT_PRICES
+type KeyIngredient = keyof Ingredient
 
 class BurgerBuilder extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props)
     
     this.state = {
-      ingredients: {
-        salad: 0,
-        bacon: 0,
-        cheese: 0,
-        meat: 0
-      },
-      totalPrice: 0,
+      ingredients: undefined,
+      totalPrice: 4,
       purcharseable: false,
       purchasing: false,
       loading: false
@@ -57,38 +59,40 @@ class BurgerBuilder extends Component<IProps, IState> {
   }
 
   addIngredientHandler(type: string) : void {
-    const oldCount = this.state.ingredients[type]
+    const oldCount = this.state.ingredients![type as KeyIngredient]
     const updatedCounted = oldCount + 1
-    const updatedIngredients = {
-      ...this.state.ingredients
+    if (this.state.ingredients) {
+      const updatedIngredients: Ingredient = { ...this.state.ingredients }
+  
+      updatedIngredients[type as KeyIngredient] = updatedCounted
+      const priceAddition = INGREDIENT_PRICES[type as KeyIngredientPrice]
+      const oldPrice = this.state.totalPrice
+      const newPrice = oldPrice + priceAddition
+  
+      this.setState({ ingredients: updatedIngredients, totalPrice: newPrice })
+      this.updatePurchaseState(updatedIngredients)
     }
-
-    updatedIngredients[type] = updatedCounted
-    const priceAddition = INGREDIENT_PRICES[type as KeyIngredientPrice]
-    const oldPrice = this.state.totalPrice
-    const newPrice = oldPrice + priceAddition
-
-    this.setState({ ingredients: updatedIngredients, totalPrice: newPrice })
-    this.updatePurchaseState(updatedIngredients)
   }
 
   removeIngredientHandler(type: string) : void {
-    const oldCount = this.state.ingredients[type]
+    const oldCount = this.state.ingredients![type as KeyIngredient]
 
     if (oldCount <= 0) return
 
     const updatedCounted = oldCount - 1
-    const updatedIngredients = {
-      ...this.state.ingredients
+    if (this.state.ingredients) {
+      const updatedIngredients = {
+        ...this.state.ingredients
+      }
+  
+      updatedIngredients[type as KeyIngredient] = updatedCounted
+      const priceDeduction = INGREDIENT_PRICES[type as KeyIngredientPrice]
+      const oldPrice = this.state.totalPrice
+      const newPrice = oldPrice - priceDeduction
+  
+      this.setState({ ingredients: updatedIngredients, totalPrice: newPrice })
+      this.updatePurchaseState(updatedIngredients)
     }
-
-    updatedIngredients[type] = updatedCounted
-    const priceDeduction = INGREDIENT_PRICES[type as KeyIngredientPrice]
-    const oldPrice = this.state.totalPrice
-    const newPrice = oldPrice - priceDeduction
-
-    this.setState({ ingredients: updatedIngredients, totalPrice: newPrice })
-    this.updatePurchaseState(updatedIngredients)
   }
 
   purchaseHandler () {
@@ -121,36 +125,52 @@ class BurgerBuilder extends Component<IProps, IState> {
       .finally(() => this.setState({ loading: false, purchasing: false }))
   }
 
+  async componentDidMount() {
+    const { data } = await axios.get('https://react-my-burger-5965d.firebaseio.com/ingredients.json')
+    this.setState( { ingredients: data } )
+  }
+
   render() {
     const ingredients = this.state.ingredients
     const disabledInfo : { [ingredient: string]: boolean } = {}
     for (let ingredientName in ingredients) {
-      disabledInfo[ingredientName] = ingredients[ingredientName] <= 0
+      disabledInfo[ingredientName] = ingredients[ingredientName as KeyIngredient] <= 0
     }
 
-    let orderSummary = <OrderSummary
-      price={this.state.totalPrice}
-      purchaseContinued={this.purchaseContinueHandler.bind(this)} 
-      purchaseCanceled={this.purchaseCancelHandler.bind(this)} 
-      ingredients={this.state.ingredients}>
-    </OrderSummary>
-    if (this.state.loading) {
-      orderSummary = <Spinner />
+
+    let orderSummary = <Spinner />
+
+    if (!this.state.loading && this.state.ingredients) {
+      orderSummary = <OrderSummary
+        price={this.state.totalPrice}
+        purchaseContinued={this.purchaseContinueHandler.bind(this)} 
+        purchaseCanceled={this.purchaseCancelHandler.bind(this)} 
+        ingredients={this.state.ingredients}>
+      </OrderSummary>  
     }
 
-    return <Aux>
-      <Modal modalClosed={this.purchaseCancelHandler.bind(this)} show={this.state.purchasing}>
-        {orderSummary}
-      </Modal>
-      <Burger ingredients={this.state.ingredients} />
-      <BuildControls 
-        price={this.state.totalPrice} 
-        disabled={disabledInfo}
-        purchasable={this.state.purcharseable}
-        ordered={this.purchaseHandler.bind(this)}
-        ingredientRemoved={this.removeIngredientHandler.bind(this)} 
-        ingredientAdded={this.addIngredientHandler.bind(this)} />
-    </Aux>
+    let burger = <Spinner />
+    if (this.state.ingredients) {
+      burger = <Aux>
+        <Burger ingredients={this.state.ingredients} />
+        <BuildControls 
+          price={this.state.totalPrice} 
+          disabled={disabledInfo}
+          purchasable={this.state.purcharseable}
+          ordered={this.purchaseHandler.bind(this)}
+          ingredientRemoved={this.removeIngredientHandler.bind(this)} 
+          ingredientAdded={this.addIngredientHandler.bind(this)} />
+      </Aux>
+    }
+
+    return <WithErrorHandler axios={axios}>
+      <Aux>
+        <Modal modalClosed={this.purchaseCancelHandler.bind(this)} show={this.state.purchasing}>
+          {orderSummary}
+        </Modal>
+        {burger}
+      </Aux>
+    </WithErrorHandler>
   }
 }
 

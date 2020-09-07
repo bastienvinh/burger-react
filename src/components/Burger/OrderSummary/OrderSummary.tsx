@@ -2,12 +2,21 @@ import React, { Component } from 'react'
 import Aux from '../../../hoc/Aux/Aux'
 import Button from '../../UI/Button/Button'
 
+type Ingredient = {
+  salad: number,
+  cheese: number,
+  meat: number,
+  bacon: number
+}
+
 interface IProps {
   price: number
-  ingredients: { [ingredientName: string]: number }
+  ingredients: Ingredient
   purchaseCanceled: () => void
   purchaseContinued: () => void
 }
+
+type keyIngredient = keyof Ingredient
 
 class OrderSummary extends Component<IProps> {
 
@@ -17,7 +26,7 @@ class OrderSummary extends Component<IProps> {
 
   render() {
     const ingredientSummary = Object.keys(this.props.ingredients)
-                              .map(ingredientName => <li><span style={{ textTransform: 'capitalize' }}>{ingredientName}</span> : {this.props.ingredients[ingredientName]}</li>)
+                              .map(ingredientName => <li key={ingredientName + "_" + Math.random()}><span style={{ textTransform: 'capitalize' }}>{ingredientName}</span> : {this.props.ingredients[ingredientName as keyIngredient]}</li>)
   
     return <Aux>
       <h3>Your Order</h3>
