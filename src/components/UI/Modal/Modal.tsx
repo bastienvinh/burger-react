@@ -18,10 +18,6 @@ class Modal extends Component<IProps, IState> {
   shouldComponentUpdate(nextProps : IProps, _nextState: IState) {
     return nextProps.show !== this.props.show || nextProps.children !== this.props.children
   }
-
-  componentWillUpdate() {
-    console.log('[Modal] WillUpdate')
-  }
   
   render() {
     return <Aux>

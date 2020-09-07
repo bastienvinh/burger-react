@@ -20,10 +20,6 @@ type keyIngredient = keyof Ingredient
 
 class OrderSummary extends Component<IProps> {
 
-  componentWillUpdate() {
-    console.log('[OrderSummary] WillUpdate')
-  }
-
   render() {
     const ingredientSummary = Object.keys(this.props.ingredients)
                               .map(ingredientName => <li key={ingredientName + "_" + Math.random()}><span style={{ textTransform: 'capitalize' }}>{ingredientName}</span> : {this.props.ingredients[ingredientName as keyIngredient]}</li>)

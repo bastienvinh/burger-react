@@ -15,6 +15,9 @@ interface IState {
 // Use this tutorial : https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html
 class WidthErrorHandler extends Component<IProps, IState> {
 
+  private reqInterceptor: number | null = null
+  private resInterceptor: number | null = null
+
   constructor(props: IProps) {
     super(props)
     this.state = {
@@ -24,20 +27,22 @@ class WidthErrorHandler extends Component<IProps, IState> {
   }
 
   componentDidMount() {
-
     if (this.props.axios) {
-      this.props.axios.interceptors.request.use(config => {
+      this.reqInterceptor = this.props.axios.interceptors.request.use(config => {
         this.setState({ error: null })
         return config
       })
-      this.props.axios.interceptors.response.use(config => config, error => this.setState({ error }))
+      this.resInterceptor = this.props.axios.interceptors.response.use(config => config, error => this.setState({ error }))
     }
-
-    
   }
 
   componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
     this.setState({ hasError: true })
+  }
+
+  componentWillUnmount() {
+    this.reqInterceptor && this.props.axios && this.props.axios.interceptors.request.eject(this.reqInterceptor)
+    this.resInterceptor && this.props.axios && this.props.axios.interceptors.response.eject(this.resInterceptor)
   }
 
   modalClosedhandler() {

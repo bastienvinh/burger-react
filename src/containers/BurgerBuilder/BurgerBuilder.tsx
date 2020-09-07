@@ -26,6 +26,7 @@ interface IState {
   purcharseable: boolean
   purchasing: boolean
   loading: boolean
+  hasError: boolean
 }
 
 const INGREDIENT_PRICES = {
@@ -47,7 +48,8 @@ class BurgerBuilder extends Component<IProps, IState> {
       totalPrice: 4,
       purcharseable: false,
       purchasing: false,
-      loading: false
+      loading: false,
+      hasError: false
     }
 
   }
@@ -126,8 +128,15 @@ class BurgerBuilder extends Component<IProps, IState> {
   }
 
   async componentDidMount() {
-    const { data } = await axios.get('https://react-my-burger-5965d.firebaseio.com/ingredients.json')
-    this.setState( { ingredients: data } )
+    try {
+      const { data } = await axios.get('https://react-my-burger-5965d.firebaseio.com/ingredients.json')
+      this.setState( { ingredients: data } )
+    }
+    catch {
+      console.log('You error has been seeen ...')
+      this.setState({ hasError: true })
+    }
+    
   }
 
   render() {
@@ -136,7 +145,6 @@ class BurgerBuilder extends Component<IProps, IState> {
     for (let ingredientName in ingredients) {
       disabledInfo[ingredientName] = ingredients[ingredientName as KeyIngredient] <= 0
     }
-
 
     let orderSummary = <Spinner />
 
@@ -149,7 +157,7 @@ class BurgerBuilder extends Component<IProps, IState> {
       </OrderSummary>  
     }
 
-    let burger = <Spinner />
+    let burger = this.state.hasError ? <p>Ingredients can't be loaded!</p> : <Spinner />
     if (this.state.ingredients) {
       burger = <Aux>
         <Burger ingredients={this.state.ingredients} />
