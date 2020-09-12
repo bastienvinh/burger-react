@@ -1,14 +1,15 @@
 import React, { FunctionComponent } from 'react'
+import { NavLink } from 'react-router-dom'
 
 import classes from './NavigationItem.module.css'
 
 interface IProps {
-  active?: boolean
   link: string
+  exact?: boolean
 }
 
 const NavigationItem : FunctionComponent<IProps> = props => <li className={classes.NavigationItem}>
-  <a className={props.active ? classes.active : ''} href={props.link}>{props.children}</a>
+  <NavLink exact={props.exact} className={classes.A} activeClassName={classes.active} to={props.link}>{props.children}</NavLink>
 </li>
 
 export default NavigationItem

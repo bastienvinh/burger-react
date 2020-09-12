@@ -26,6 +26,11 @@ class WidthErrorHandler extends Component<IProps, IState> {
     }
   }
 
+  static getDerivedStateFromError(error: any): Partial<IState> | null {
+    console.error(error)
+    return { hasError: true }
+  }
+
   componentDidMount() {
     if (this.props.axios) {
       this.reqInterceptor = this.props.axios.interceptors.request.use(config => {
@@ -36,7 +41,8 @@ class WidthErrorHandler extends Component<IProps, IState> {
     }
   }
 
-  componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error(error, errorInfo)
     this.setState({ hasError: true })
   }
 

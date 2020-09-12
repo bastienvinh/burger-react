@@ -1,13 +1,15 @@
-import React, { FunctionComponent } from 'react'
+import React, { FunctionComponent, Props } from 'react'
+import { withRouter, RouteComponentProps } from 'react-router-dom'
 
 import classes from './Burger.module.css'
 import BurgerIngredient from './BurgerIngredient/BurgerIngredient'
 
-interface IProps {
+interface IProps extends RouteComponentProps<any>, Props<any> {
   ingredients: { [ingredient: string]: number }
 }
 
 const Burger: FunctionComponent<IProps> = props => {
+  
   const transformedIngredients = Object.keys(props.ingredients)
     .flatMap(
       ingredientName => [...Array(props.ingredients[ingredientName])].map((_, i) => <BurgerIngredient key={ingredientName + i} type={ingredientName} />)
@@ -20,4 +22,4 @@ const Burger: FunctionComponent<IProps> = props => {
   </div>
 }
 
-export default Burger
+export default withRouter(Burger)

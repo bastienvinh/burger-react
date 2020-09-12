@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
 
 import Aux from '../../hoc/Aux/Aux'
 import Burger from '../../components/Burger/Burger'
@@ -16,7 +17,7 @@ type Ingredient = {
   bacon: number
 }
 
-interface IProps {
+interface IProps extends RouteComponentProps {
 
 }
 
@@ -105,26 +106,14 @@ class BurgerBuilder extends Component<IProps, IState> {
     this.setState({ purchasing: false })
   }
 
-  purchaseContinueHandler() {
-    // alert('You continue!')
-    this.setState({ loading: true })
-    const order = {
-      ingredients: this.state.ingredients,
-      price: this.state.totalPrice,
-      customer: {
-        name: 'Bastien NOLO',
-        address:  {
-          street: 'Teststreet 1',
-          zipCode: '41351',
-          country: 'Germany'
-        },
-        email: 'test@test.com'
-      },
-      deliveryMethod: 'fastest'
-    }
-    axios.post('/orders.json', order)
-      .then(response => console.log(response))
-      .finally(() => this.setState({ loading: false, purchasing: false }))
+  purchaseContinueHandler() {    
+    const queryParams = Object.keys(this.state.ingredients!)
+                          .map( ingredient => encodeURIComponent( ingredient ) + '=' + encodeURIComponent( this.state.ingredients![ingredient as KeyIngredient] ) )
+    queryParams.push('price=' + this.state.totalPrice)
+    this.props.history.push({
+      pathname: '/checkout',
+      search: '?' + queryParams.join('&')
+    })
   }
 
   async componentDidMount() {
@@ -136,7 +125,6 @@ class BurgerBuilder extends Component<IProps, IState> {
       console.log('You error has been seeen ...')
       this.setState({ hasError: true })
     }
-    
   }
 
   render() {
