@@ -1,6 +1,8 @@
 import React, { ChangeEvent, Component } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
+import { connect } from 'react-redux'
+
 import Button from '../../../components/UI/Button/Button'
 import Spinner from '../../../components/UI/Spinner/Spinner'
 import Input from '../../../components/UI/Input/Input'
@@ -8,6 +10,14 @@ import Input from '../../../components/UI/Input/Input'
 import classes from './ContactData.module.css'
 import axios from '../../../axios-orders'
 import { AxiosResponse } from 'axios'
+import { RootState } from 'store/store'
+
+const mapStateToProps = (state: RootState) => ({
+  ingrs: state.burger.ingredients,
+  tPrice: state.burger.totalPrice
+})
+
+type ReduxState = ReturnType<typeof mapStateToProps>
 
 // Declare element that let you describe your form
 interface IInputElement {
@@ -32,9 +42,7 @@ interface Validation {
 
 type DictionnaryInputElement = { [element: string]: IInputElement }
 
-interface IProps extends RouteComponentProps<any> {
-  ingredients: { [ingredientName: string] : number }
-  price: number
+interface IProps extends RouteComponentProps, ReduxState {
 }
 
 interface IState {
@@ -152,8 +160,8 @@ class ContactData extends Component<IProps, IState> {
     }
     
     const order = {
-      ingredients: this.props.ingredients,
-      price: this.props.price,
+      ingredients: this.props.ingrs,
+      price: this.props.tPrice,
       orderData: formData
     }
 
@@ -231,4 +239,4 @@ class ContactData extends Component<IProps, IState> {
   }
 }
 
-export default ContactData
+export default connect(mapStateToProps)(ContactData)

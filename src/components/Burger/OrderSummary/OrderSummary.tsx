@@ -11,7 +11,7 @@ type Ingredient = {
 
 interface IProps {
   price: number
-  ingredients: Ingredient
+  ingredients: { [ingredient: string]: number }
   purchaseCanceled: () => void
   purchaseContinued: () => void
 }

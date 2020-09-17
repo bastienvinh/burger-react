@@ -2,18 +2,15 @@ import React, { Component } from 'react';
 import { Switch } from 'react-router-dom'
 
 import './App.css';
-import Layout from './hoc/Layout/Layout';
+import Layout from './hoc/Layout/Layout'
 import BurgerBuilder from './containers/BurgerBuilder/BurgerBuilder'
 import Checkout from './containers/Checkout/Checkout'
 import Orders from './containers/Orders/Orders'
-import { Route } from 'react-router-dom';
+import { Route } from 'react-router-dom'
 
-interface IProps {
+interface IProps {}
 
-}
-
-interface IState {
-}
+interface IState {}
 
 class App extends Component<IProps, IState> {
   
