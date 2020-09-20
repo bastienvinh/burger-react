@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 
 import classes from './Order.module.css'
-import IIngredients from '../../types/Ingredients'
 
-type KeyOfIIngredient = keyof IIngredients
 
 interface IProps {
-  ingredients: IIngredients
+  ingredients: { [ingredientName: string]: number }
   price: number
 }
 
@@ -20,7 +18,7 @@ class Orders extends Component<IProps, IState> {
 
   const ingredientsOuput = Object.keys(this.props.ingredients).map( ig => <span 
                                                                             style={{ textTransform: 'capitalize', display: 'inline-block', margin: '0 8px', border: '1px solid #ccc' }} 
-                                                                            key={ig}>{ig} ({this.props.ingredients[ig as KeyOfIIngredient]})
+                                                                            key={ig}>{ig} ({this.props.ingredients[ig]})
                                                                           </span> )
 
     return <div className={classes.Order}>

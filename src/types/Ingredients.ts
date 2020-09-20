@@ -1,8 +1,3 @@
-interface Ingredient {
-  salad: number
-  bacon: number
-  meat: number
-  cheese: number
-}
+export type Ingredients = { [ingredientName: string]: number }
 
-export default Ingredient
+export default Ingredients

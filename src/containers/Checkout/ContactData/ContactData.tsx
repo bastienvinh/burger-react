@@ -8,16 +8,25 @@ import Spinner from '../../../components/UI/Spinner/Spinner'
 import Input from '../../../components/UI/Input/Input'
 
 import classes from './ContactData.module.css'
-import axios from '../../../axios-orders'
-import { AxiosResponse } from 'axios'
 import { RootState } from 'store/store'
+import { purchaseBurger, purchaseBurgerStart } from 'store/actions/order'
+import Order from 'types/Order'
+import { AnyAction } from 'redux'
+import { ThunkDispatch } from 'redux-thunk'
 
 const mapStateToProps = (state: RootState) => ({
   ingrs: state.burger.ingredients,
-  tPrice: state.burger.totalPrice
+  tPrice: state.burger.totalPrice,
+  loading: state.orders.loading
+})
+
+const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
+  onOrderBurger: (order: Order) => dispatch(purchaseBurger(order)),
+  onOrderBurgerStart: () => dispatch(purchaseBurgerStart())
 })
 
 type ReduxState = ReturnType<typeof mapStateToProps>
+type ReduxDispatch = ReturnType<typeof mapDispatchToProps>
 
 // Declare element that let you describe your form
 interface IInputElement {
@@ -42,12 +51,12 @@ interface Validation {
 
 type DictionnaryInputElement = { [element: string]: IInputElement }
 
-interface IProps extends RouteComponentProps, ReduxState {
+interface IProps extends RouteComponentProps, ReduxState, ReduxDispatch {
 }
 
 interface IState {
   orderForm: DictionnaryInputElement
-  loading: boolean
+  // loading: boolean
   formIsValid: boolean
 }
 
@@ -56,7 +65,7 @@ class ContactData extends Component<IProps, IState> {
     super(props)
 
     this.state = {
-      loading: false,
+      // loading: false,
       orderForm: {
         name: {
           name: 'name',
@@ -159,17 +168,14 @@ class ContactData extends Component<IProps, IState> {
       formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value
     }
     
-    const order = {
-      ingredients: this.props.ingrs,
+    const order: Order = {
+      ingredients: this.props.ingrs!,
       price: this.props.tPrice,
       orderData: formData
     }
 
-    axios.post('/orders.json', order)
-      .then((_response: AxiosResponse) => {
-        this.setState({ loading: false  })
-        this.props.history.push('/')
-      })
+    this.props.onOrderBurgerStart()
+    this.props.onOrderBurger(order)
   }
 
   changeValidity(value: string, rules: Validation | undefined) : boolean {
@@ -228,7 +234,7 @@ class ContactData extends Component<IProps, IState> {
       <Button disable={!this.state.formIsValid} btnType="Success" clicked={this.orderHandler.bind(this)}>ORDER</Button>
     </form>
 
-    if (this.state.loading) {
+    if (this.props.loading) {
       form = <Spinner />
     }
 
@@ -239,4 +245,4 @@ class ContactData extends Component<IProps, IState> {
   }
 }
 
-export default connect(mapStateToProps)(ContactData)
+export default connect(mapStateToProps, mapDispatchToProps)(ContactData)

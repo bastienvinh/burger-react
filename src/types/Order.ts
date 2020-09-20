@@ -1,19 +1,8 @@
-import Ingredients from './Ingredients'
-
 interface Order {
-  id: string
-  customer: {
-    address: {
-      street: string
-      postalCode: string
-      country: string
-    }
-    name: string
-    email: string
-  }
-  deliveryMethod: string
+  id?: string
+  ingredients: { [ingredientName: string]: number }
   price: number
-  ingredients: Ingredients
+  orderData: { [key: string]: string }
 }
 
 export default Order

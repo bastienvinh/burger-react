@@ -1,4 +1,5 @@
-import { ADD_INGREDIENTS, REMOVE_INGREDIENTS, BurgerState, BURGER_ACTION } from '../types'
+import { ADD_INGREDIENTS, REMOVE_INGREDIENTS, BurgerState, BURGER_ACTION, SET_INGREDIENTS, FETCH_INGREDIENTS_FAILED } from '../types'
+import { updateObject }  from '../utility'
 
 const initialState: BurgerState = {
   ingredients: {
@@ -7,7 +8,8 @@ const initialState: BurgerState = {
     cheese: 0,
     meat: 0
   },
-  totalPrice: 4
+  totalPrice: 4,
+  error: false
 }
 
 const INGREDIENT_PRICES = {
@@ -22,26 +24,31 @@ type KeyIngredientPrice = keyof typeof INGREDIENT_PRICES
 const reducer = (state: BurgerState = initialState, action: BURGER_ACTION) : BurgerState => {
   switch (action.type) {
     case ADD_INGREDIENTS:
-      return {
-        ...state,
-        ingredients: {
-          ...state.ingredients,
-          [action.payload] : state.ingredients![action.payload] + 1
-        },
-        totalPrice: state.totalPrice + INGREDIENT_PRICES[action.payload as KeyIngredientPrice]
+
+      const ingredientsAddIngredient = {
+        ...state.ingredients,
+        [action.payload] : state.ingredients![action.payload] + 1
       }
+
+      const totalPriceAddIngredient = state.totalPrice + INGREDIENT_PRICES[action.payload as KeyIngredientPrice]
+
+      return updateObject(state, { ingredients: ingredientsAddIngredient, totalPrice: totalPriceAddIngredient  })
     case REMOVE_INGREDIENTS:
-      return {
-        ...state,
-        ingredients: {
-          ...state.ingredients,
-          [action.payload]: state.ingredients![action.payload] - 1
-        },
-        totalPrice: state.totalPrice - INGREDIENT_PRICES[action.payload as KeyIngredientPrice]
+      const ingredientsRemoveIngredients = {
+        ...state.ingredients,
+        [action.payload]: state.ingredients![action.payload] - 1
       }
+
+      const totalPriceRemoveIngredients = state.totalPrice - INGREDIENT_PRICES[action.payload as KeyIngredientPrice]
+
+      return updateObject(state, { ingredients: ingredientsRemoveIngredients, totalPrice: totalPriceRemoveIngredients })
+    case SET_INGREDIENTS:
+      return updateObject(state, { ingredients: action.payload, totalPrice: 4, error: false })
+    case FETCH_INGREDIENTS_FAILED:
+      return updateObject(state, { error: true })
     default:
       return state
   }
 }
 
-export default reducer
+export default reducer 

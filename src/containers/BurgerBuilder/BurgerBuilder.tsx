@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
 import Aux from '../../hoc/Aux/Aux'
@@ -14,18 +13,24 @@ import axios from '../../axios-orders'
 import WithErrorHandler from '../../hoc/WithErrorHandler/WithErrorHandler'
 
 import { RootState } from 'store/store'
-import { addIngredient, removeIngredient } from 'store/actions/burgerActions'
+import { addIngredient, initIngredients, removeIngredient } from 'store/actions/burgerActions'
+import { purcharseInit } from 'store/actions/order'
+import { ThunkDispatch } from 'redux-thunk'
+import { AnyAction } from 'redux'
 
 const mapStateToProps = (state: RootState) => {
   return {
     ingrs: state.burger.ingredients,
-    tPrice: state.burger.totalPrice
+    tPrice: state.burger.totalPrice,
+    error: state.burger.error
   }
 }
 
-const mapDispatchToPros = (dispatch: Dispatch) => ({
+const mapDispatchToPros = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
+  initIngredients: () => dispatch(initIngredients()),
   addIngredient: (ingredient: string) => dispatch(addIngredient(ingredient)),
-  removeIngredient: (ingredient: string) => dispatch(removeIngredient(ingredient))
+  removeIngredient: (ingredient: string) => dispatch(removeIngredient(ingredient)),
+  onInitPurchase: () => dispatch(purcharseInit())
 })
 
 type Ingredient = {
@@ -43,7 +48,6 @@ interface IProps extends RouteComponentProps, ReduxState, ReduxFunction {}
 interface IState {
   purchasing: boolean
   loading: boolean
-  hasError: boolean
 }
 
 type KeyIngredient = keyof Ingredient
@@ -54,10 +58,13 @@ class BurgerBuilder extends Component<IProps, IState> {
     
     this.state = {
       purchasing: false,
-      loading: false,
-      hasError: false
+      loading: false
     }
 
+  }
+
+  componentDidMount() {
+    this.props.initIngredients()
   }
 
   updatePurchaseState() {
@@ -101,10 +108,8 @@ class BurgerBuilder extends Component<IProps, IState> {
     this.setState({ purchasing: false })
   }
 
-  purchaseContinueHandler() {    
-    // const queryParams = Object.keys(this.props.ingrs!)
-    //                       .map( ingredient => encodeURIComponent( ingredient ) + '=' + encodeURIComponent( this.props.ingrs![ingredient as KeyIngredient] ) )
-    // queryParams.push('price=' + this.props.tPrice)
+  purchaseContinueHandler() {
+    this.props.onInitPurchase()
     this.props.history.push('/checkout')
   }
 
@@ -126,7 +131,7 @@ class BurgerBuilder extends Component<IProps, IState> {
       </OrderSummary>  
     }
 
-    let burger = this.state.hasError ? <p>Ingredients can't be loaded!</p> : <Spinner />
+    let burger = this.props.error ? <p>Ingredients can't be loaded!</p> : <Spinner />
     if (this.props.ingrs) {
       burger = <Aux>
         <Burger ingredients={this.props.ingrs} />
