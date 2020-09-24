@@ -13,11 +13,13 @@ import { purchaseBurger, purchaseBurgerStart } from 'store/actions/order'
 import Order from 'types/Order'
 import { AnyAction } from 'redux'
 import { ThunkDispatch } from 'redux-thunk'
+import { DictionnaryInputElement, Validation } from 'types/IInputElement'
 
 const mapStateToProps = (state: RootState) => ({
   ingrs: state.burger.ingredients,
   tPrice: state.burger.totalPrice,
-  loading: state.orders.loading
+  loading: state.orders.loading,
+  error: state.orders.error
 })
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
@@ -28,35 +30,12 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
 type ReduxState = ReturnType<typeof mapStateToProps>
 type ReduxDispatch = ReturnType<typeof mapDispatchToProps>
 
-// Declare element that let you describe your form
-interface IInputElement {
-  name: string
-  elementType: string
-  elementConfig: {
-    type?: string
-    placeholder?: string
-    options?: Array<{ value: string, displayValue: string }>
-  }
-  value: string,
-  validation?: Validation
-  valid: boolean
-  touched: boolean
-}
 
-interface Validation {
-  required?: boolean
-  minLength?: number
-  maxLength?: number
-}
 
-type DictionnaryInputElement = { [element: string]: IInputElement }
-
-interface IProps extends RouteComponentProps, ReduxState, ReduxDispatch {
-}
+interface IProps extends RouteComponentProps, ReduxState, ReduxDispatch {}
 
 interface IState {
   orderForm: DictionnaryInputElement
-  // loading: boolean
   formIsValid: boolean
 }
 
@@ -65,7 +44,6 @@ class ContactData extends Component<IProps, IState> {
     super(props)
 
     this.state = {
-      // loading: false,
       orderForm: {
         name: {
           name: 'name',
@@ -236,6 +214,10 @@ class ContactData extends Component<IProps, IState> {
 
     if (this.props.loading) {
       form = <Spinner />
+    }
+
+    if (this.props.error) {
+      form = <p>Error Inserting data. Refresh the page.</p>
     }
 
     return <div className={classes.ContactData}>
