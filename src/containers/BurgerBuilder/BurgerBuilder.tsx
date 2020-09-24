@@ -22,7 +22,8 @@ const mapStateToProps = (state: RootState) => {
   return {
     ingrs: state.burger.ingredients,
     tPrice: state.burger.totalPrice,
-    error: state.burger.error
+    error: state.burger.error,
+    isAuthenticated: state.auth.token !== null
   }
 }
 
@@ -101,7 +102,12 @@ class BurgerBuilder extends Component<IProps, IState> {
   }
 
   purchaseHandler () {
-    this.setState({ purchasing: true })
+    if (this.props.isAuthenticated) {
+      this.setState({ purchasing: true })
+    }
+    else {
+      this.props.history.push('/auth')
+    }
   }
 
   purchaseCancelHandler() {
@@ -136,6 +142,7 @@ class BurgerBuilder extends Component<IProps, IState> {
       burger = <Aux>
         <Burger ingredients={this.props.ingrs} />
         <BuildControls 
+          isAuth={this.props.isAuthenticated}
           price={this.props.tPrice} 
           disabled={disabledInfo}
           purchasable={this.updatePurchaseState()}

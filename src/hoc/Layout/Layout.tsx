@@ -1,10 +1,21 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+
 import Aux from '../../hoc/Aux/Aux'
 import classes from './Layout.module.css'
 import Toolbar from '../../components/Navigation/Toolbar/Toolbar'
 import SideDrawer from '../../components/Navigation/SideDrawer/SideDrawer'
+import { RootState } from 'store/store'
 
-interface IProps {}
+const mapStateToProps = (state: RootState) => ({
+  isAuthenticated: state.auth.token !== null
+})
+
+type ReduxState = ReturnType<typeof mapStateToProps>
+
+interface IProps extends ReduxState {
+  children: React.ReactElement
+}
 interface IState {
   showSideDrawer: boolean
 }
@@ -27,7 +38,7 @@ class Layout extends Component<IProps, IState> {
 
   render() {
     return <Aux>
-      <Toolbar drawerToggleClicked={this.sideDrawerToggleHandler.bind(this)} />
+      <Toolbar isAuth={this.props.isAuthenticated} drawerToggleClicked={this.sideDrawerToggleHandler.bind(this)} />
       <SideDrawer open={this.state.showSideDrawer} closed={this.sideDrawerClosedHandler.bind(this)} />
       <main className={classes.Content}>
         {this.props.children}
@@ -36,4 +47,4 @@ class Layout extends Component<IProps, IState> {
   }
 }
 
-export default Layout
+export default connect(mapStateToProps)(Layout)

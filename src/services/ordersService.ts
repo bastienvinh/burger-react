@@ -15,7 +15,6 @@ class OrdersService {
   }
 
   public async clear() {
-    console.log("clear is called")
     this.authToken = ""
   }
 

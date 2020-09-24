@@ -29,19 +29,19 @@ export const authFail = (error: Error) : AUTH_ACTION => {
 }
 
 export const logout = () : AUTH_ACTION => {
+  OrderService.getInstance().clear()
+  IngredientsService.getInstance().clear()
   return {
     type: AUTH_LOGOUT
   }
 }
 
 export const checkAuthTimeout = (expirationTime: number) : ThunkAction<void, RootState, null, AUTH_ACTION> => {
+  console.log(expirationTime)
   return dispatch => {
     setTimeout(() => {
-      // OrderService.getInstance().clear()
-      // IngredientsService.getInstance().clear()
-
       dispatch(logout())
-    }, expirationTime)
+    }, expirationTime * 1000)
   }
 }
 

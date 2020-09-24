@@ -1,4 +1,6 @@
 import React, { ChangeEvent, Component, FormEvent } from 'react'
+import { Redirect } from 'react-router-dom'
+
 import { DictionnaryInputElement, Validation } from '../../types/IInputElement'
 import Input from '../../components/UI/Input/Input'
 import Button from '../../components/UI/Button/Button'
@@ -14,7 +16,8 @@ import Spinner from '../../components/UI/Spinner/Spinner'
 
 const mapStateToProps = (state: RootState) => ({
   loading: state.auth.loading,
-  error: state.auth.error
+  error: state.auth.error,
+  isAuthenticated: state.auth.token !== null
 })
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
@@ -148,7 +151,13 @@ class Auth extends Component<IProps, IState> {
       errorMessage = <p>{this.props.error.message}</p>
     }
 
+    let authRedirect : React.ReactElement | null = null
+    if (this.props.isAuthenticated) {
+      authRedirect = <Redirect to="/" />
+    }
+
     return <div className={classes.Auth}>
+      {authRedirect}
       {errorMessage}
       <form onSubmit={this.submitForm.bind(this)}>
         {listInput}
