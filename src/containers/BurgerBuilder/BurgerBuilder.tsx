@@ -14,6 +14,7 @@ import WithErrorHandler from '../../hoc/WithErrorHandler/WithErrorHandler'
 
 import { RootState } from 'store/store'
 import { addIngredient, initIngredients, removeIngredient } from 'store/actions/burgerActions'
+import { setAuthRedirectPath } from 'store/actions/auth'
 import { purcharseInit } from 'store/actions/order'
 import { ThunkDispatch } from 'redux-thunk'
 import { AnyAction } from 'redux'
@@ -31,7 +32,8 @@ const mapDispatchToPros = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
   initIngredients: () => dispatch(initIngredients()),
   addIngredient: (ingredient: string) => dispatch(addIngredient(ingredient)),
   removeIngredient: (ingredient: string) => dispatch(removeIngredient(ingredient)),
-  onInitPurchase: () => dispatch(purcharseInit())
+  onInitPurchase: () => dispatch(purcharseInit()),
+  onSetAuthRedirectPath: (path: string) => dispatch(setAuthRedirectPath(path))
 })
 
 type Ingredient = {
@@ -106,6 +108,7 @@ class BurgerBuilder extends Component<IProps, IState> {
       this.setState({ purchasing: true })
     }
     else {
+      this.props.onSetAuthRedirectPath('/checkout')
       this.props.history.push('/auth')
     }
   }

@@ -1,4 +1,4 @@
-import { AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_ACTION, AUTH_LOGOUT } from '../types'
+import { AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_ACTION, AUTH_LOGOUT, SET_AUTH_REDIRECT_PATH } from '../types'
 import { AuthData } from '../../types/AllType'
 import { ThunkAction } from 'redux-thunk'
 import { RootState } from '../store'
@@ -31,19 +31,28 @@ export const authFail = (error: Error) : AUTH_ACTION => {
 export const logout = () : AUTH_ACTION => {
   OrderService.getInstance().clear()
   IngredientsService.getInstance().clear()
+  localStorage.removeItem('token')
+  localStorage.removeItem('expirationDate')
+  localStorage.removeItem('userId')
   return {
     type: AUTH_LOGOUT
   }
 }
 
 export const checkAuthTimeout = (expirationTime: number) : ThunkAction<void, RootState, null, AUTH_ACTION> => {
-  console.log(expirationTime)
   return dispatch => {
     setTimeout(() => {
       dispatch(logout())
     }, expirationTime * 1000)
   }
 }
+
+export const setAuthRedirectPath = (path: string) : AUTH_ACTION => {
+  return {
+    type: SET_AUTH_REDIRECT_PATH,
+    payload: path
+  }
+} 
 
 export const auth = (email: string, password: string, isSignup: boolean ) : ThunkAction<void, RootState, null, AUTH_ACTION> => {
   return async dispatch => {
@@ -65,9 +74,15 @@ export const auth = (email: string, password: string, isSignup: boolean ) : Thun
 
       // Set the auth on each service
       OrderService.getInstance().setAuth(firebaseData.idToken)
+      OrderService.getInstance().setUserId(firebaseData.localId)
       IngredientsService.getInstance().setAuth(firebaseData.idToken)
 
-      dispatch(authSuccess({ email, password, token: firebaseData.idToken, userId: firebaseData.localId }))
+      const expirationDate = new Date(new Date().getTime() + firebaseData.expiresIn * 1000)
+      localStorage.setItem('token', firebaseData.idToken)
+      localStorage.setItem('expirationDate', expirationDate.toDateString())
+      localStorage.setItem('userId', firebaseData.localId)
+
+      dispatch(authSuccess({ token: firebaseData.idToken, userId: firebaseData.localId }))
       dispatch(checkAuthTimeout(+firebaseData.expiresIn))
     }
     catch (e) {
@@ -75,5 +90,27 @@ export const auth = (email: string, password: string, isSignup: boolean ) : Thun
       IngredientsService.getInstance().clear()
       dispatch(authFail(e))
     }
+  }
+}
+
+export const authCheckState = () : ThunkAction<void, RootState, null, AUTH_ACTION> => {
+  
+  return async dispatch => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      dispatch(logout())
+    } else {
+      const expirationDate = new Date(localStorage.getItem('expirationDate')!)
+      if (expirationDate <= new Date()) {
+        dispatch(logout())
+      }
+      else {
+        const userId = localStorage.getItem('userId')!
+        dispatch(authSuccess({ token, userId }))
+        dispatch(checkAuthTimeout(expirationDate.getTime() - new Date().getTime() / 1000))
+      }
+
+    }
+
   }
 }

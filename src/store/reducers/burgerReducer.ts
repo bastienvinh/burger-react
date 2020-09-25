@@ -9,7 +9,8 @@ const initialState: BurgerState = {
     meat: 0
   },
   totalPrice: 4,
-  error: false
+  error: false,
+  building: false
 }
 
 const INGREDIENT_PRICES = {
@@ -32,7 +33,7 @@ const reducer = (state: BurgerState = initialState, action: BURGER_ACTION) : Bur
 
       const totalPriceAddIngredient = state.totalPrice + INGREDIENT_PRICES[action.payload as KeyIngredientPrice]
 
-      return updateObject(state, { ingredients: ingredientsAddIngredient, totalPrice: totalPriceAddIngredient  })
+      return updateObject(state, { ingredients: ingredientsAddIngredient, totalPrice: totalPriceAddIngredient , building: true })
     case REMOVE_INGREDIENTS:
       const ingredientsRemoveIngredients = {
         ...state.ingredients,
@@ -41,7 +42,7 @@ const reducer = (state: BurgerState = initialState, action: BURGER_ACTION) : Bur
 
       const totalPriceRemoveIngredients = state.totalPrice - INGREDIENT_PRICES[action.payload as KeyIngredientPrice]
 
-      return updateObject(state, { ingredients: ingredientsRemoveIngredients, totalPrice: totalPriceRemoveIngredients })
+      return updateObject(state, { ingredients: ingredientsRemoveIngredients, totalPrice: totalPriceRemoveIngredients, building: true })
     case SET_INGREDIENTS:
       return updateObject(state, { ingredients: action.payload, totalPrice: 4, error: false })
     case FETCH_INGREDIENTS_FAILED:

@@ -5,6 +5,7 @@ class OrdersService {
 
   private static readonly instance = new OrdersService()
   private authToken = ""
+  private userId = ""
 
   private constructor() {
 
@@ -16,14 +17,21 @@ class OrdersService {
 
   public async clear() {
     this.authToken = ""
+    this.userId = ""
   }
 
   public setAuth(auth: string) {
     this.authToken = auth
   }
 
+  public setUserId(userId: string) {
+    this.userId = userId
+  }
+
   public async getAll() : Promise<Array<Order>> {
-    return axios.get(`/orders.json?auth=${this.authToken}`).then(response => Object.keys(response.data).map( id => ({ id, ...response.data[id] } )))
+    const queryParams = '?auth=' + this.authToken + '&orderBY="userId"&equalTo="' + this.userId + '"'
+    return axios.get(`/orders.json${queryParams}`)
+      .then(response => Object.keys(response.data).map( id => ({ id, ...response.data[id] } )))
   }
 
   public async create(order: Order) : Promise<Order> {

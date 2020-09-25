@@ -10,18 +10,21 @@ import { connect } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
 import { AnyAction } from 'redux'
 import { RootState } from 'store/store'
-import { auth } from 'store/actions/auth'
+import { auth, setAuthRedirectPath } from 'store/actions/auth'
 
 import Spinner from '../../components/UI/Spinner/Spinner'
 
 const mapStateToProps = (state: RootState) => ({
   loading: state.auth.loading,
   error: state.auth.error,
-  isAuthenticated: state.auth.token !== null
+  isAuthenticated: state.auth.token !== null,
+  buildingBurger: state.burger.building,
+  authRedirectPath: state.auth.authRedirectPath
 })
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
-  onAuth: (login: string, password: string, isSignup: boolean) => dispatch(auth(login, password, isSignup))
+  onAuth: (login: string, password: string, isSignup: boolean) => dispatch(auth(login, password, isSignup)),
+  onSetAuthRedirectPath: () => dispatch(setAuthRedirectPath('/'))
 })
 
 type ReduxState = ReturnType<typeof mapStateToProps>
@@ -72,6 +75,12 @@ class Auth extends Component<IProps, IState> {
         }
       },
       isSignup: true
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.buildingBurger && this.props.authRedirectPath !== '/') {
+      this.props.onSetAuthRedirectPath()
     }
   }
 
@@ -153,7 +162,7 @@ class Auth extends Component<IProps, IState> {
 
     let authRedirect : React.ReactElement | null = null
     if (this.props.isAuthenticated) {
-      authRedirect = <Redirect to="/" />
+      authRedirect = <Redirect to={this.props.authRedirectPath} />
     }
 
     return <div className={classes.Auth}>

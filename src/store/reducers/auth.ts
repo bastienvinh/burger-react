@@ -1,11 +1,12 @@
-import { AUTH_ACTION, AuthState, AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_LOGOUT } from '../types' 
+import { AUTH_ACTION, AuthState, AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_LOGOUT, SET_AUTH_REDIRECT_PATH } from '../types' 
 import { updateObject } from '../utility'
 
 const initialState: AuthState = {
   error: null,
   token: null,
   userId: null,
-  loading: false
+  loading: false,
+  authRedirectPath: '/'
 }
 
 const reducer = (state: AuthState = initialState, action: AUTH_ACTION) : AuthState => {
@@ -18,6 +19,8 @@ const reducer = (state: AuthState = initialState, action: AUTH_ACTION) : AuthSta
       return updateObject(state, { error: action.payload, loading: false })
     case AUTH_LOGOUT:
       return updateObject(state, { token: null, userId: null })
+    case SET_AUTH_REDIRECT_PATH:
+      return updateObject(state, { authRedirectPath: action.payload } )
     default:
       return state
   }
