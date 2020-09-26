@@ -12,7 +12,8 @@ const reducers = combineReducers({
 })
 
 export type RootState = ReturnType<typeof reducers>
+const composeEnchancers = composeWithDevTools({ trace: true, traceLimit: 25 })
 
-const store = createStore(reducers, composeWithDevTools(applyMiddleware( thunk )))
+const store = createStore(reducers, composeEnchancers(applyMiddleware( thunk )))
 
 export default store

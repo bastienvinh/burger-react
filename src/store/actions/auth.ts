@@ -101,7 +101,7 @@ export const authCheckState = () : ThunkAction<void, RootState, null, AUTH_ACTIO
       dispatch(logout())
     } else {
       const expirationDate = new Date(localStorage.getItem('expirationDate')!)
-      if (expirationDate <= new Date()) {
+      if (expirationDate.getTime() <= new Date().getTime()) {
         dispatch(logout())
       }
       else {

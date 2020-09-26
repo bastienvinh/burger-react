@@ -11,22 +11,12 @@ const mapStateToProps = (state: RootState) => ({
   purcharsed: state.orders.purchased
 })
 
-// const mapDispatchtoProps = (dispacth: ThunkDispatch<any, any, AnyAction>) => ({
-//   onInitPurchase: () => dispacth(purcharsInit())
-// })
-
 type ReduxState = ReturnType<typeof mapStateToProps>
-// type ReduxDispacth = ReturnType<typeof mapDispatchtoProps>
 
 interface IProps extends RouteComponentProps, ReduxState {}
 interface IState {}
 
 class Checkout extends Component<IProps, IState> {
-
-  componentDidMount() {
-    // console.log(this.props.onInitPurchase)
-    // this.props.onInitPurchase()
-  }
 
   checkoutCancelledHandler() {
     this.props.history.goBack()

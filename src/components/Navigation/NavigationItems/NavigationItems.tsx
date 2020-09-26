@@ -3,7 +3,7 @@ import classes from './NavigationItems.module.css'
 import NavigationItem from './NavigationItem/NavigationItem'
 
 interface IProps {
-  isAuthenticated: boolean
+  isAuthenticated?: boolean
 }
 
 const NavigationItems : FunctionComponent<IProps> = props => <ul className={classes.NavigationItems}>

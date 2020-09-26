@@ -50,6 +50,7 @@ class App extends Component<IProps, IState> {
     )
 
     if (this.props.isAuthenticated) {
+      console.log('experiences ...')
       routes = <Switch>
         <Route path="/checkout" component={Checkout} />
         <Route path="/orders" component={Orders} />
@@ -67,4 +68,4 @@ class App extends Component<IProps, IState> {
   }
 }
 
-export default  withRouter(connect(null, mapDispatchToProps)(App) as any)
+export default  withRouter(connect(mapStateToProps, mapDispatchToProps)(App) as any)
