@@ -13,7 +13,9 @@ import { purchaseBurger, purchaseBurgerStart } from 'store/actions/order'
 import Order from 'types/Order'
 import { AnyAction } from 'redux'
 import { ThunkDispatch } from 'redux-thunk'
-import { DictionnaryInputElement, Validation } from 'types/IInputElement'
+import { DictionnaryInputElement } from 'types/IInputElement'
+
+import { updateObject, checkValidty } from '../../../shared/utility'
 
 const mapStateToProps = (state: RootState) => ({
   ingrs: state.burger.ingredients,
@@ -156,34 +158,41 @@ class ContactData extends Component<IProps, IState> {
     this.props.onOrderBurger(order)
   }
 
-  changeValidity(value: string, rules: Validation | undefined) : boolean {
-    let isValid = true
+  // changeValidity(value: string, rules: Validation | undefined) : boolean {
+  //   let isValid = true
 
-    if (!rules) {
-      return true
-    }
+  //   if (!rules) {
+  //     return true
+  //   }
 
-    if (rules.required) {
-      isValid = value.trim() !== '' && isValid
-    }
+  //   if (rules.required) {
+  //     isValid = value.trim() !== '' && isValid
+  //   }
 
-    if (rules.minLength) {
-      isValid = value.trim().length >= rules.minLength && isValid
-    }
+  //   if (rules.minLength) {
+  //     isValid = value.trim().length >= rules.minLength && isValid
+  //   }
 
-    if (rules.maxLength) {
-      isValid = value.trim().length <= rules.maxLength && isValid
-    }
+  //   if (rules.maxLength) {
+  //     isValid = value.trim().length <= rules.maxLength && isValid
+  //   }
 
-     return isValid
-  }
+  //    return isValid
+  // }
+
+
 
   inputChangedHandler = (event: ChangeEvent, identifier: string) => {
     const updatedOrderForm = { ...this.state.orderForm }
-    const updatedFormElement = { ...updatedOrderForm[identifier] }
-    updatedFormElement.value  = updatedFormElement.elementType === 'select' ? (event.target as HTMLSelectElement).value : (event.target as HTMLInputElement).value
-    updatedFormElement.touched = true
-    updatedFormElement.valid = this.changeValidity(updatedFormElement.value, updatedFormElement.validation)
+    const updatedFormElement = updateObject(this.state.orderForm[identifier], {
+      value: this.state.orderForm[identifier].elementType === 'select' ? (event.target as HTMLSelectElement).value : (event.target as HTMLInputElement).value,
+      touched: true,
+      valid: checkValidty(this.state.orderForm[identifier].value, this.state.orderForm[identifier].validation)
+    })
+    // const updatedFormElement = { ...updatedOrderForm[identifier] }
+    // updatedFormElement.value  = updatedFormElement.elementType === 'select' ? (event.target as HTMLSelectElement).value : (event.target as HTMLInputElement).value
+    // updatedFormElement.touched = true
+    // updatedFormElement.valid = this.changeValidity(updatedFormElement.value, updatedFormElement.validation)
     updatedOrderForm[identifier] = updatedFormElement
 
     const formIsValid = !Object.keys(updatedOrderForm)

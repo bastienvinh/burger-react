@@ -1,5 +1,5 @@
 import { ADD_INGREDIENTS, REMOVE_INGREDIENTS, BurgerState, BURGER_ACTION, SET_INGREDIENTS, FETCH_INGREDIENTS_FAILED } from '../types'
-import { updateObject }  from '../utility'
+import { updateObject }  from '../../shared/utility'
 
 const initialState: BurgerState = {
   ingredients: {

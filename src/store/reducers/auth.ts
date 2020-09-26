@@ -1,5 +1,5 @@
 import { AUTH_ACTION, AuthState, AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_LOGOUT, SET_AUTH_REDIRECT_PATH } from '../types' 
-import { updateObject } from '../utility'
+import { updateObject } from '../../shared/utility'
 
 const initialState: AuthState = {
   error: null,
