@@ -1,9 +1,9 @@
-import { ThunkAction } from 'redux-thunk'
-import { FETCH_ORDERS_START, FETCH_ORDERS_SUCCESS, ORDER_ACTION, PURCHASE_BURGER_FAIL, PURCHASE_BURGER_START, PURCHASE_BURGER_SUCCESS, PURCHASE_INIT } from '../types'
-import { RootState } from '../store'
+// import { ThunkAction } from 'redux-thunk'
+import { FETCH_ORDER, FETCH_ORDERS_START, FETCH_ORDERS_SUCCESS, ORDER_ACTION, PURCHASE_BURGER, PURCHASE_BURGER_FAIL, PURCHASE_BURGER_START, PURCHASE_BURGER_SUCCESS, PURCHASE_INIT } from '../types'
+// import { RootState } from '../store'
 import Order from 'types/Order'
 
-import OrderService from '../../services/ordersService'
+// import OrderService from '../../services/ordersService'
 
 export const purcharseInit = () : ORDER_ACTION => {
   return {
@@ -34,15 +34,10 @@ export const purchaseBurgerStart = () : ORDER_ACTION => {
   }
 }
 
-export const purchaseBurger = (newOrder: Order) : ThunkAction<void, RootState, null, ORDER_ACTION> => {
-  return async dispatch => {
-    try {
-      const order: Order = await OrderService.getInstance().create(newOrder)
-      dispatch(purchasesBurgerSuccess(order.id!, order))
-    }
-    catch {
-      dispatch(purchaseBurgerFail(true))
-    }
+export const purchaseBurger = (newOrder: Order) : ORDER_ACTION => {
+  return {
+    type: PURCHASE_BURGER,
+    payload: newOrder
   }
 }
 
@@ -66,14 +61,8 @@ export const fetchOrderStart = () => {
   }
 }
 
-export const fetchOrders = () : ThunkAction<void, RootState, null, ORDER_ACTION> => {
-  return async dispatch => {
-    try {
-      const orders = await OrderService.getInstance().getAll()
-      dispatch(fetchOrderSuccess(orders))
-    }
-    catch {
-      dispatch(fetchOrderFail(true))
-    }
+export const fetchOrders = () : ORDER_ACTION => {
+  return {
+    type: FETCH_ORDER
   }
 }

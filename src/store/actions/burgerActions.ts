@@ -1,9 +1,9 @@
-import { ThunkAction } from 'redux-thunk'
-import { RootState } from 'store/store'
-import { ADD_INGREDIENTS, BURGER_ACTION, SET_INGREDIENTS, REMOVE_INGREDIENTS, FETCH_INGREDIENTS_FAILED } from '../types'
+// import { ThunkAction } from 'redux-thunk'
+// import { RootState } from 'store/store'
+import { ADD_INGREDIENTS, BURGER_ACTION, SET_INGREDIENTS, REMOVE_INGREDIENTS, FETCH_INGREDIENTS_FAILED, INIT_INGREDIENTS } from '../types'
 import '../../types/Ingredients'
 import Ingredients from '../../types/Ingredients'
-import IngredientService from '../../services/ingredientsService'
+// import IngredientService from '../../services/ingredientsService'
 // import axios from '../../axios-orders'
 // import firebase from '../../firebase/config'
 
@@ -34,17 +34,8 @@ export const fetchingIngredientsFailed = () : BURGER_ACTION => {
   }
 }
 
-export const initIngredients = () : ThunkAction<void, RootState, null, BURGER_ACTION> => {
-  return async dispatch => {
-    try {
-      // const ingredients = await axios.get('/ingredients.json').then(response => response.data)
-      const ingredients = await IngredientService.getInstance().getAll()
-      
-      // dispatch(setIngredients({}))
-      dispatch(setIngredients(ingredients))
-    }
-    catch {
-      dispatch(fetchingIngredientsFailed())
-    }
+export const initIngredients = () : BURGER_ACTION => {
+  return {
+    type: INIT_INGREDIENTS
   }
 }

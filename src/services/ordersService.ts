@@ -29,7 +29,8 @@ class OrdersService {
   }
 
   public async getAll() : Promise<Array<Order>> {
-    const queryParams = '?auth=' + this.authToken + '&orderBY="userId"&equalTo="' + this.userId + '"'
+    // '&orderBY="userId"&equalTo="' + this.userId + '"' // for some its not working
+    const queryParams = '?auth=' + this.authToken
     return axios.get(`/orders.json${queryParams}`)
       .then(response => Object.keys(response.data).map( id => ({ id, ...response.data[id] } )))
   }
