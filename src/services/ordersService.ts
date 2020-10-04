@@ -5,7 +5,6 @@ class OrdersService {
 
   private static readonly instance = new OrdersService()
   private authToken = ""
-  private userId = ""
 
   private constructor() {
 
@@ -17,15 +16,11 @@ class OrdersService {
 
   public async clear() {
     this.authToken = ""
-    this.userId = ""
+    console.log('it is called')
   }
 
   public setAuth(auth: string) {
     this.authToken = auth
-  }
-
-  public setUserId(userId: string) {
-    this.userId = userId
   }
 
   public async getAll() : Promise<Array<Order>> {

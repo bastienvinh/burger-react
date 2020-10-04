@@ -14,7 +14,7 @@ export function* purchaseBurgerSaga(action: PURCHASE_BURGER_ACTION) {
   }
 }
 
-export function* fetchOrdersSaga(action: any) {
+export function* fetchOrdersSaga(_action: any) {
   try {
     yield put(fetchOrderStart())
     const orders = yield OrderService.getInstance().getAll()

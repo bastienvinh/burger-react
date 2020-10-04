@@ -1,39 +1,31 @@
-import React, { Component } from 'react'
+import React, { FC, useState } from 'react'
 import Aux from '../../hoc/Aux/Aux'
 import classes from './Layout.module.css'
 import Toolbar from '../../components/Navigation/Toolbar/Toolbar'
 import SideDrawer from '../../components/Navigation/SideDrawer/SideDrawer'
 
 interface IProps {}
-interface IState {
-  showSideDrawer: boolean
-}
 
-class Layout extends Component<IProps, IState> {
+const Layout: FC<IProps> = props => {
 
-  state = {
-    showSideDrawer: false
+  const [showSideDrawer, setShowSideDrawer] = useState(false)
+
+  const sideDrawerClosedHandler = () => {
+    setShowSideDrawer(false)
   }
 
-  sideDrawerClosedHandler() {
-    this.setState({ showSideDrawer: false })
+  const sideDrawerToggleHandler = () => {
+    setShowSideDrawer(prevState => !prevState)
   }
 
-  sideDrawerToggleHandler() {
-    this.setState((prevState) => {
-      return { showSideDrawer: !prevState.showSideDrawer }
-    })
-  }
-
-  render() {
-    return <Aux>
-      <Toolbar drawerToggleClicked={this.sideDrawerToggleHandler.bind(this)} />
-      <SideDrawer open={this.state.showSideDrawer} closed={this.sideDrawerClosedHandler.bind(this)} />
+ return <Aux>
+      <Toolbar drawerToggleClicked={sideDrawerToggleHandler} />
+      <SideDrawer open={showSideDrawer} closed={sideDrawerClosedHandler} />
       <main className={classes.Content}>
-        {this.props.children}
+        {props.children}
       </main>
     </Aux>
-  }
+  
 }
 
 export default Layout

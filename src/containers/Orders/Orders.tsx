@@ -1,51 +1,48 @@
-import React, { Component } from 'react'
+import React, { Dispatch, FC, useEffect } from 'react'
 import axios from '../../axios-orders'
 import WithErrorHandler from '../../hoc/WithErrorHandler/WithErrorHandler'
 import { fetchOrders } from 'store/actions/order'
-import { ThunkDispatch } from 'redux-thunk'
-import { AnyAction } from 'redux'
 import { connect } from 'react-redux'
 import { RootState } from 'store/store'
 import Order from '../../components/Order/Order'
 import Spinner from '../../components/UI/Spinner/Spinner'
+import { ORDER_ACTION } from 'store/types'
 
 const mapStateToProps = (state: RootState) => ({
   orders: state.orders.orders,
   loading: state.orders.loading
 })
 
-const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
-  onFetchOrders : () => dispatch(fetchOrders())
+const mapDispatchToProps = (dispatch: Dispatch<ORDER_ACTION>) => ({
+  onFetchOrders: () => dispatch(fetchOrders())
 })
 
 type ReduxMatch = ReturnType<typeof mapStateToProps>
 type ReduxDispatch = ReturnType<typeof mapDispatchToProps>
 
-interface IProps extends ReduxDispatch, ReduxMatch {}
+interface IProps extends ReduxDispatch, ReduxMatch { }
 
-interface IState {
-}
+const Orders: FC<IProps> = props => {
 
-class Orders extends Component<IProps, IState> {
+  const { onFetchOrders } = props
 
-  async componentDidMount() {
-    this.props.onFetchOrders()
+  useEffect(() => {
+    onFetchOrders()
+  }, [onFetchOrders])
+
+  // const orders= null
+  let orders: React.ReactNode = <Spinner />
+
+  if (!props.loading && props.orders) {
+    orders = props.orders.map(order => <Order key={order.id} ingredients={order.ingredients} price={order.price} />)
   }
 
-  render() {
-    // const orders= null
-    let orders: React.ReactNode = <Spinner />
+  return <WithErrorHandler axios={axios}>
+    <div>
+      {orders}
+    </div>
+  </WithErrorHandler>
 
-    if (!this.props.loading && this.props.orders) {
-      orders = this.props.orders.map(order => <Order key={order.id} ingredients={order.ingredients} price={order.price} />)
-    }
-
-    return <WithErrorHandler axios={axios}>
-      <div>
-        {orders}
-      </div>
-    </WithErrorHandler>
-  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Orders)

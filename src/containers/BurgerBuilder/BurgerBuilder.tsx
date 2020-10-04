@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { connect } from 'react-redux'
+import { connect, useDispatch, useSelector } from 'react-redux'
 
 import Aux from '../../hoc/Aux/Aux'
 import Burger from '../../components/Burger/Burger'
@@ -16,25 +16,6 @@ import { RootState } from 'store/store'
 import { addIngredient, initIngredients, removeIngredient } from 'store/actions/burgerActions'
 import { setAuthRedirectPath } from 'store/actions/auth'
 import { purcharseInit } from 'store/actions/order'
-import { ThunkDispatch } from 'redux-thunk'
-import { AnyAction } from 'redux'
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    ingrs: state.burger.ingredients,
-    tPrice: state.burger.totalPrice,
-    error: state.burger.error,
-    isAuthenticated: state.auth.token !== null
-  }
-}
-
-const mapDispatchToPros = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
-  initIngredients: () => dispatch(initIngredients()),
-  addIngredient: (ingredient: string) => dispatch(addIngredient(ingredient)),
-  removeIngredient: (ingredient: string) => dispatch(removeIngredient(ingredient)),
-  onInitPurchase: () => dispatch(purcharseInit()),
-  onSetAuthRedirectPath: (path: string) => dispatch(setAuthRedirectPath(path))
-})
 
 type Ingredient = {
   salad: number,
@@ -43,87 +24,84 @@ type Ingredient = {
   bacon: number
 }
 
-type ReduxState = ReturnType<typeof mapStateToProps>
-type ReduxFunction = ReturnType<typeof mapDispatchToPros>
-
-interface IProps extends RouteComponentProps, ReduxState, ReduxFunction {}
-
-interface IState {
-  purchasing: boolean
-  loading: boolean
-}
+interface IProps extends RouteComponentProps {}
 
 type KeyIngredient = keyof Ingredient
 
-class BurgerBuilder extends Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props)
-    
-    this.state = {
-      purchasing: false,
-      loading: false
-    }
+const BurgerBuilder: FC<IProps> = props => {
 
-  }
+  const dispatch = useDispatch()
+  const ings = useSelector((state: RootState) => state.burger.ingredients)
+  const tPrice = useSelector((state: RootState) => state.burger.totalPrice)
+  const error = useSelector((state: RootState) => state.burger.error)
+  const isAuthenticated = useSelector((state: RootState) => state.auth.token !== null)
 
-  componentDidMount() {
-    this.props.initIngredients()
-  }
+  const onAddIngredient = (ingredient: string) => dispatch(addIngredient(ingredient))
+  const onRemoveIngredient = (ingredient: string) => dispatch(removeIngredient(ingredient))
+  const onInitPurchase = () => dispatch(purcharseInit())
+  const onSetAuthRedirectPath = (path: string) => dispatch(setAuthRedirectPath(path))
+  const onInitIngredients = useCallback(() => dispatch(initIngredients()), [dispatch])
 
-  updatePurchaseState() {
-    const sum = Object.keys(this.props.ingrs!)
-                  .reduce( (total, ingredientName) => total + this.props.ingrs![ingredientName], 0)
+  const [purchasing, setPurchasing] = useState(false)
+  const [loading] = useState(false)
+
+  useEffect(() => {
+    onInitIngredients()
+  }, [onInitIngredients])
+
+  const updatePurchaseState = () => {
+    const sum = Object.keys(ings!)
+                  .reduce( (total, ingredientName) => total + ings![ingredientName], 0)
     return sum > 0
   }
 
-  addIngredientHandler(type: string) : void {
-    const oldCount = this.props.ingrs![type as KeyIngredient]
+  const addIngredientHandler = (type: string) : void => {
+    const oldCount = ings![type as KeyIngredient]
     const updatedCounted = oldCount + 1
-    if (this.props.ingrs) {
-      const updatedIngredients = { ...this.props.ingrs }
+    if (ings) {
+      const updatedIngredients = { ...ings }
   
       updatedIngredients[type as KeyIngredient] = updatedCounted
-      this.props.addIngredient(type)
+      onAddIngredient(type)
     }
   }
 
-  removeIngredientHandler(type: string) : void {
-    const oldCount = this.props.ingrs![type as KeyIngredient]
+  const removeIngredientHandler = (type: string) : void => {
+    const oldCount = ings![type as KeyIngredient]
 
     if (oldCount <= 0) return
 
     const updatedCounted = oldCount - 1
-    if (this.props.ingrs) {
+    if (ings) {
       const updatedIngredients = {
-        ...this.props.ingrs
+        ...ings
       }
   
       updatedIngredients[type as KeyIngredient] = updatedCounted
-      this.props.removeIngredient(type)
+      onRemoveIngredient(type)
     }
   }
 
-  purchaseHandler () {
-    if (this.props.isAuthenticated) {
-      this.setState({ purchasing: true })
+  const purchaseHandler = () => {
+    if (isAuthenticated) {
+      setPurchasing(true)
     }
     else {
-      this.props.onSetAuthRedirectPath('/checkout')
-      this.props.history.push('/auth')
+      onSetAuthRedirectPath('/checkout')
+      props.history.push('/auth')
     }
   }
 
-  purchaseCancelHandler() {
-    this.setState({ purchasing: false })
+  const purchaseCancelHandler = () => {
+    setPurchasing(false)
   }
 
-  purchaseContinueHandler() {
-    this.props.onInitPurchase()
-    this.props.history.push('/checkout')
+  const purchaseContinueHandler = () => {
+    onInitPurchase()
+    props.history.push('/checkout')
   }
 
-  render() {
-    const ingredients = this.props.ingrs
+    const ingredients = ings
     const disabledInfo : { [ingredient: string]: boolean } = {}
     for (let ingredientName in ingredients) {
       disabledInfo[ingredientName] = ingredients[ingredientName as KeyIngredient] <= 0
@@ -131,40 +109,39 @@ class BurgerBuilder extends Component<IProps, IState> {
 
     let orderSummary = <Spinner />
 
-    if (!this.state.loading && this.props.ingrs) {
+    if (!loading && ings) {
       orderSummary = <OrderSummary
-        price={this.props.tPrice}
-        purchaseContinued={this.purchaseContinueHandler.bind(this)} 
-        purchaseCanceled={this.purchaseCancelHandler.bind(this)} 
-        ingredients={this.props.ingrs}>
+        price={tPrice}
+        purchaseContinued={purchaseContinueHandler} 
+        purchaseCanceled={purchaseCancelHandler} 
+        ingredients={ings}>
       </OrderSummary>  
     }
 
-    let burger = this.props.error ? <p>Ingredients can't be loaded!</p> : <Spinner />
-    if (this.props.ingrs) {
+    let burger = error ? <p>Ingredients can't be loaded!</p> : <Spinner />
+    if (ings) {
       burger = <Aux>
-        <Burger ingredients={this.props.ingrs} />
+        <Burger ingredients={ings} />
         <BuildControls 
-          isAuth={this.props.isAuthenticated}
-          price={this.props.tPrice} 
+          isAuth={isAuthenticated}
+          price={tPrice} 
           disabled={disabledInfo}
-          purchasable={this.updatePurchaseState()}
-          ordered={this.purchaseHandler.bind(this)}
-          ingredientRemoved={this.removeIngredientHandler.bind(this)} 
-          ingredientAdded={this.addIngredientHandler.bind(this)} />
+          purchasable={updatePurchaseState()}
+          ordered={purchaseHandler}
+          ingredientRemoved={removeIngredientHandler} 
+          ingredientAdded={addIngredientHandler} />
       </Aux>
     }
 
     return <WithErrorHandler axios={axios}>
       <Aux>
-        <Modal modalClosed={this.purchaseCancelHandler.bind(this)} show={this.state.purchasing}>
+        <Modal modalClosed={purchaseCancelHandler} show={purchasing}>
           {orderSummary}
         </Modal>
         {burger}
       </Aux>
     </WithErrorHandler>
-  }
 }
 
 
-export default connect(mapStateToProps, mapDispatchToPros)(BurgerBuilder)
+export default connect()(BurgerBuilder)

@@ -40,7 +40,7 @@ export function* authUserSaga(action: any) {
 
     // Set the auth on each service
     yield OrderService.getInstance().setAuth(firebaseData.idToken)
-    yield OrderService.getInstance().setUserId(firebaseData.localId)
+    // yield OrderService.getInstance().setUserId(firebaseData.localId)
     yield IngredientsService.getInstance().setAuth(firebaseData.idToken)
 
     const expirationDate =  yield new Date(new Date().getTime() + firebaseData.expiresIn * 1000)

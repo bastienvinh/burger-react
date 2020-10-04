@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { FC, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 import { AnyAction } from 'redux'
 import { connect } from 'react-redux'
@@ -13,19 +13,16 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
 
 type ReduxDispatch = ReturnType<typeof mapDispatchToProps>
 
-interface IProps extends ReduxDispatch {
+interface IProps extends ReduxDispatch {}
 
-}
+const Logout: FC<IProps> = props => {
+  const { onLogout } = props
 
-class Logout extends Component<IProps> {
+  useEffect(() => {
+    onLogout()
+  }, [onLogout])
 
-  componentDidMount() {
-    this.props.onLogout()
-  }
-
-  render() {
-    return <Redirect to="/" />
-  }
+  return <Redirect to="/" />
 }
 
 export default connect(null, mapDispatchToProps)(Logout)
